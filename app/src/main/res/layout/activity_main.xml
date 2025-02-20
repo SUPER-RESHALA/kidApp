@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/viewFlipper"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:inAnimation="@android:anim/slide_in_left"
+    android:outAnimation="@android:anim/slide_out_right">
+
+    <!-- Шаг 1 -->
+
+    <!-- Шаг 2 -->
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/Su"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="NEW PAGE" />
+
+        <Button
+            android:id="@+id/viewApps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/checkVidHintBtn" />
+
+        <Button
+            android:id="@+id/viewUsedApps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="prevStep"
+            android:text="@string/goSettingsBtn" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="50dp"
+            android:text="@string/enterCode"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/codeField"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="50dp"
+            android:ems="10"
+            android:hint="@string/enterCodeHint"
+            android:inputType="number"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="50dp"
+            android:text="@string/enterCode2"
+            android:textSize="20sp" />
+
+        <Button
+            android:id="@+id/connectBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="nextStep"
+            android:text="@string/connectBtn" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/letSetUp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="100dp"
+            android:gravity="center"
+            android:text="@string/letSetUp"
+            android:textSize="28sp" />
+
+        <Button
+            android:id="@+id/startSetUpBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="prevStep"
+            android:text="@string/startSetUpBtn" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/kidName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="100dp"
+            android:gravity="center"
+            android:text="@string/kidName"
+            android:textSize="28sp" />
+
+        <EditText
+            android:id="@+id/nameInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/kidNameInputHint"
+            android:inputType="text"
+            android:text="@string/kidNameInputHint" />
+
+        <TextView
+            android:id="@+id/selectAvaText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/selectAva" />
+
+        <ImageView
+            android:id="@+id/imageView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <Button
+            android:id="@+id/contNameBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="prevStep"
+            android:text="@string/continueBtn" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/kidAge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="50dp"
+            android:gravity="center"
+            android:text="@string/kidAge"
+            android:textSize="28sp" />
+
+        <EditText
+            android:id="@+id/editTextNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/ageInputHint"
+            android:inputType="number" />
+
+        <Button
+            android:id="@+id/ageContBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="prevStep"
+            android:text="@string/continueBtn" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/statText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="100dp"
+            android:gravity="center"
+            android:text="@string/enableStatText"
+            android:textSize="28sp" />
+
+        <TextView
+            android:id="@+id/statHint1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/statHintText1" />
+
+        <TextView
+            android:id="@+id/statHint2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/statHintText2" />
+
+        <TextView
+            android:id="@+id/statHint3"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:text="@string/statHint3" />
+
+        <Button
+            android:id="@+id/statHintBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:onClick="prevStep"
+            android:text="@string/checkVidHintBtn" />
+
+        <Button
+            android:id="@+id/goSetStatBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/goSettingsBtn" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/Super"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="NEW PAGE" />
+
+        <Button
+            android:id="@+id/goHintAcessBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/checkVidHintBtn" />
+
+        <Button
+            android:id="@+id/enableAccessibilityBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="prevStep"
+            android:text="@string/goSettingsBtn" />
+
+    </LinearLayout>
+</ViewFlipper>
