@@ -29,7 +29,7 @@ public class OverlayPermissionHandler {
                 Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
                         Uri.parse("package:" + activity.getPackageName()));
                 activity.startActivity(intent);
-                Toast.makeText(activity, "Разрешите показ поверх других приложений", Toast.LENGTH_LONG).show();
+               // Toast.makeText(activity, "Разрешите показ поверх других приложений", Toast.LENGTH_LONG).show();
             }
         }
     }

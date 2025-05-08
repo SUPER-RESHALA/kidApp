@@ -2,10 +2,44 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" tools:ignore="ProtectedPermissions"/>
+<!--    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"-->
+<!--        tools:ignore="QueryAllPackagesPermission" />-->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <queries>
-        <!-- Разрешает доступ ко всем установленным приложениям -->
-        <package android:name="*"/>
+        <!-- Конкретные приложения -->
+        <package android:name="com.whatsapp"/>
+        <package android:name="com.instagram.android"/>
+        <package android:name="com.facebook.katana"/>
+
+        <!-- Приложения с веб-браузерами -->
+        <intent>
+            <action android:name="android.intent.action.VIEW"/>
+            <data android:scheme="http"/>
+        </intent>
+
+        <!-- Приложения с email-клиентами -->
+        <intent>
+            <action android:name="android.intent.action.SEND"/>
+            <data android:mimeType="message/rfc822"/>
+        </intent>
+
+        <!-- Приложения с поддержкой звонков -->
+        <intent>
+            <action android:name="android.intent.action.DIAL"/>
+            <data android:scheme="tel"/>
+        </intent>
+
+        <!-- Контент-провайдеры для доступа к данным (например, SMS, контакты) -->
+        <provider android:authorities="com.android.contacts"/>
+        <provider android:authorities="com.android.providers.telephony"/>
     </queries>
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -30,6 +64,12 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
+        <service
+            android:name="com.example.kidapp.services.UsageKidService"
+            android:exported="false"
+            android:permission="android.permission.PACKAGE_USAGE_STATS" />
+
+
 
         <activity
             android:name=".MainActivity"
@@ -43,3 +83,36 @@
     </application>
 
 </manifest>
+<!--    android:permission="android.permission.BIND_JOB_SERVICE"-->
+                  <!--РАСШИРЕННЫЙ QUERIES-->
+<!--<queries>-->
+<!--&lt;!&ndash; Конкретные приложения &ndash;&gt;-->
+<!--<package android:name="com.whatsapp"/>-->
+<!--<package android:name="com.instagram.android"/>-->
+<!--<package android:name="com.facebook.katana"/>-->
+
+<!--&lt;!&ndash; Приложения с веб-браузерами &ndash;&gt;-->
+<!--<intent>-->
+<!--    <action android:name="android.intent.action.VIEW"/>-->
+<!--    <data android:scheme="http"/>-->
+<!--</intent>-->
+
+<!--&lt;!&ndash; Приложения с email-клиентами &ndash;&gt;-->
+<!--<intent>-->
+<!--    <action android:name="android.intent.action.SEND"/>-->
+<!--    <data android:mimeType="message/rfc822"/>-->
+<!--</intent>-->
+
+<!--&lt;!&ndash; Приложения с поддержкой звонков &ndash;&gt;-->
+<!--<intent>-->
+<!--    <action android:name="android.intent.action.DIAL"/>-->
+<!--    <data android:scheme="tel"/>-->
+<!--</intent>-->
+
+<!--&lt;!&ndash; Контент-провайдеры для доступа к данным (например, SMS, контакты) &ndash;&gt;-->
+<!--<provider android:authorities="com.android.contacts"/>-->
+<!--<provider android:authorities="com.android.providers.telephony"/>-->
+<!--</queries>-->
+<!--         Пермишн на все программы(опасный в плей марккет надо обосновать)-->
+<!--<uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"-->
+<!--tools:ignore="QueryAllPackagesPermission" />-->

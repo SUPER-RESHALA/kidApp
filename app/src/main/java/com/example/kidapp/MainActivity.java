@@ -19,10 +19,20 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.kidapp.apps.AppInfo;
+import com.example.kidapp.apps.InstalledAppsHelper;
 import com.example.kidapp.log.FileLogger;
 import com.example.kidapp.permission.AccessibilityPermissionHandler;
 import com.example.kidapp.permission.UsagePermissionHandler;
 import com.example.kidapp.services.AccessibilityKidService;
+import com.example.kidapp.services.UsageKidService;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
@@ -37,6 +47,11 @@ public class MainActivity extends AppCompatActivity {
     private boolean isFirstLaunch = true;
     private  UsagePermissionHandler usagePermissionHandler;
     private Button goSettingsAcessibilityBtn;
+    FirebaseAuth auth;
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference databaseReference;
+    String childUid;
+    SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,20 +64,22 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-
-
-
-//        SharedPreferences prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+         prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
+         prefs.edit().clear().apply();//ATTENTION
 //        boolean wasPermissionGranted = prefs.getBoolean("accessibility_permission_granted", false);
-
-
-
-
-
+        firebaseDatabase=FirebaseDatabase.getInstance();
+        databaseReference=firebaseDatabase.getReference();
+        auth=FirebaseAuth.getInstance();
 
         usagePermissionHandler = new UsagePermissionHandler(this);
 FileLogger.init(this);
 Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
+
+// Write a message to the database
+//        FirebaseDatabase database = FirebaseDatabase.getInstance();
+//        DatabaseReference myRef = database.getReference("message");
+//        myRef.setValue("Hello, People!");
+
         viewFlipper= findViewById(R.id.viewFlipper);
         codeField=findViewById(R.id.codeField);
         connectBtn=findViewById(R.id.connectBtn);
@@ -70,9 +87,27 @@ Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
         contNameBtn=findViewById(R.id.contNameBtn);
         ageContBtn=findViewById(R.id.ageContBtn);
         goSettingsUsageBtn=findViewById(R.id.goSetStatBtn);
-       connectBtn.setOnClickListener(v->{
-            viewFlipper.showNext();
-       });
+
+        // Анонимная аутентификация
+        auth.signInAnonymously().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Toast.makeText(this, "Auth failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+        connectBtn.setOnClickListener(v -> linkWithParent());
+
+        // Проверяем, связан ли ребенок
+        String parentUid = prefs.getString("parent_uid", null);
+        if (parentUid != null) {
+            codeField.setEnabled(false);
+            connectBtn.setEnabled(false);
+//            statusTextView.setText("Linked with parent");
+            listenForRequests();
+        }
+
+//        connectBtn.setOnClickListener(v->{
+//            viewFlipper.showNext();
+//       });
         startSetUpBtn.setOnClickListener(v->{
             viewFlipper.showNext();
         });
@@ -85,6 +120,9 @@ Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
 goSettingsUsageBtn.setOnClickListener(v->{
     isFirstLaunch=false;
 if (usagePermissionHandler.isPermissionGranted()){
+    Intent intent= new Intent(this, UsageKidService.class);
+    startService(intent);
+
     viewFlipper.showNext();
 }else {
     usagePermissionHandler.requestPermission();
@@ -108,6 +146,44 @@ if (usagePermissionHandler.isPermissionGranted()){
         });
 
 
+
+        Button viewApps= findViewById(R.id.viewApps);
+        InstalledAppsHelper installedAppsHelper= new InstalledAppsHelper(this);
+       List<AppInfo> getInstalledUserApps=  installedAppsHelper.getInstalledUserApps();
+        List<AppInfo> getInstalledAppsUsingApplications=  installedAppsHelper.getInstalledAppsUsingApplications();
+        List<AppInfo> getInstalledAppsUsingPackages=  installedAppsHelper.getInstalledAppsUsingPackages();
+        viewApps.setOnClickListener(v->{
+            int counter=0;
+            int counter2=0;
+            int counter3=0;
+//            Intent serviceIntent = new Intent(this, UsageKidService.class);
+//            startService(serviceIntent);
+            System.out.println("getInstalledUserApps//////////////////////////////////////////////");
+            for (AppInfo appInfo:getInstalledUserApps){
+counter3++;
+                System.out.println(appInfo.toString());
+            }
+            System.out.println("getInstalledAppsUsingApplications<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><");
+
+            for (AppInfo appInfo:getInstalledAppsUsingApplications){
+                System.out.println(appInfo.toString());
+                counter2++;
+            }
+            System.out.println("getInstalledAppsUsingPackages  <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><");
+            for (AppInfo appInfo:getInstalledAppsUsingPackages){
+                counter++;
+                System.err.println(appInfo.toString());
+            }
+            System.err.println("\\n//////////////////////////////////////////////"+ counter+"   "+counter2+ "     "+counter3);
+        });
+
+Button viewAllApps = findViewById(R.id.viewAllAps1);
+        viewAllApps.setOnClickListener(v->{
+
+        });
+
+
+
     }//OnCreate
     @Override
     protected void onResume() {
@@ -128,7 +204,92 @@ if (usagePermissionHandler.isPermissionGranted()){
     ////CONFIG FILE SERVISA LYBOGO
     //Фоновые процессы
 
+    private void linkWithParent() {
+        String linkCode = codeField.getText().toString().trim();
+        if (linkCode.isEmpty()) {
+            Toast.makeText(this, "Enter code", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        String childUid = auth.getCurrentUser().getUid();
+        DatabaseReference codeRef = databaseReference.child("link_codes").child(linkCode);
+
+        codeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String parentUid = snapshot.child("parent_uid").getValue(String.class);
+                    if (parentUid != null) {
+                        prefs.edit().putString("parent_uid", parentUid).apply();
+                        codeRef.child("child_uid").setValue(childUid);
+                        codeRef.removeValue();
+                        codeField.setEnabled(false);
+                        connectBtn.setEnabled(false);
+                        listenForRequests();
+                        Log.i("linkWithParent", "Linked!");
+                        viewFlipper.showNext();
+                    } else {
+                        Log.i("linkWithParent", "Invalid code");
+                    }
+                } else {
+                    Log.e("linkWithParent", "Code not found");
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.e("onCanceled", "Error: " + error.getMessage());
+            }
+        });
+    }
+
+    private void listenForRequests() {
+        String parentUid = prefs.getString("parent_uid", "");
+        String childUid = auth.getCurrentUser().getUid();
+
+        DatabaseReference requestsRef = databaseReference
+                .child("users")
+                .child(parentUid)
+                .child("children")
+                .child(childUid)
+                .child("requests");
+
+        requestsRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for (DataSnapshot requestSnapshot : snapshot.getChildren()) {
+                    String type = requestSnapshot.child("type").getValue(String.class);
+                    String status = requestSnapshot.child("status").getValue(String.class);
+                    if ("take".equals(type) && "pending".equals(status)) {
+                        sendHelloMessage();
+                        requestSnapshot.getRef().child("status").setValue("completed");
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(DatabaseError error) {
+                Log.e("onCanceled", "Error: " + error.getMessage());
+            }
+        });
+    }
+
+    private void sendHelloMessage() {
+        String parentUid = prefs.getString("parent_uid", "");
+        String childUid = auth.getCurrentUser().getUid();
+
+        DatabaseReference messageRef = databaseReference
+                .child("users")
+                .child(parentUid)
+                .child("children")
+                .child(childUid)
+                .child("messages")
+                .push();
+
+        messageRef.child("text").setValue("hello");
+        messageRef.child("timestamp").setValue(ServerValue.TIMESTAMP);
+        Log.i("sendHelloMessage", "send hello");
+    }
 
 
 }

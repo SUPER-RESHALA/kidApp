@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "14311160283",
+    "firebase_url": "https://kidapp-55a92-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "kidapp-55a92",
+    "storage_bucket": "kidapp-55a92.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:14311160283:android:6c4506197a4cf0efa58ffe",
+        "android_client_info": {
+          "package_name": "com.example.kidapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbxS6DKy-IOE0IScWlUTeW9IiUWSle_r0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

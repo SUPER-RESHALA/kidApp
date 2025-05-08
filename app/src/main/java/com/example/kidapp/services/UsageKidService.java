@@ -1,4 +1,5 @@
 package com.example.kidapp.services;
+import android.app.AppOpsManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -11,26 +12,39 @@ import android.util.Log;
 
 import com.example.kidapp.log.FileLogger;
 import com.example.kidapp.permission.UsagePermissionHandler;
+import com.example.kidapp.utils.DateUtils;
+import com.google.android.gms.common.util.DataUtils;
+import com.google.firebase.Firebase;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 public class UsageKidService extends Service {
 
     private UsageStatsManager usageStatsManager;
     private static final String TAG = "UsageKidService";
-private UsagePermissionHandler usagePermissionHandler;
+    FirebaseDatabase db;
     @Override
     public void onCreate() {
         super.onCreate();
         usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
+        db=FirebaseDatabase.getInstance();
+        Log.i(TAG, "ONCREATE CALL");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (usagePermissionHandler.isPermissionGranted()) {
+        Log.i(TAG, "onStartCommand call");
+        if (isUsagePermissionGranted()) {
             FileLogger.log(TAG, "Получаем статистику об использовании");
             // Получаем статистику об использовании приложений
-            getAppUsageStats();
+            sendDataToFirebase();
         } else {
             FileLogger.logError(TAG,"Разрешение статистики отсутствует требуется запрос");
             // Запрашиваем разрешение на использование
@@ -52,7 +66,7 @@ private UsagePermissionHandler usagePermissionHandler;
     }
 
 
-    private void getAppUsageStats() {
+    private void getAppUsageStatsPRINT() {
         long currentTime = System.currentTimeMillis();
         long startTime = currentTime - 1000 * 60 * 60 * 24;  // 24 часа назад
 
@@ -73,7 +87,16 @@ private UsagePermissionHandler usagePermissionHandler;
 
         }
     }
-
+    private List<UsageStats> getAppsUsageStats() {
+        long currentTime = System.currentTimeMillis();
+        long startTime = currentTime - 1000 * 60 * 60 * 24;  // 24 часа назад
+        List<UsageStats> usageStatsList = usageStatsManager.queryUsageStats(
+                UsageStatsManager.INTERVAL_DAILY, startTime, currentTime);
+        if (usageStatsList == null) return Collections.emptyList();
+        return usageStatsList.stream()
+                    .filter(usageStats -> usageStats.getTotalTimeInForeground()>0)
+                    .collect(Collectors.toList());
+    }
 
 
     private long getAppUsageTime(String targetPackageName) {
@@ -91,7 +114,38 @@ private UsagePermissionHandler usagePermissionHandler;
         return 0;  // Если приложение не использовалось
     }
 
+    private boolean isUsagePermissionGranted() {
+        AppOpsManager appOps = (AppOpsManager) getSystemService(Context.APP_OPS_SERVICE);
+        int mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_GET_USAGE_STATS,
+                android.os.Process.myUid(), getPackageName());
+        return mode == AppOpsManager.MODE_ALLOWED;
+    }
 
+    public void sendDataToFirebase() {
+        Log.i(TAG, "sendDataToFirebase call");
+       // getAppUsageStatsPRINT();
+        List<UsageStats> usageStats = getAppsUsageStats();
+        if (usageStats.isEmpty()) {Log.e("sendDataToFireBase", "usageStats isEmpty"); return;}
+
+        DatabaseReference ref = db.getReference("kid")
+                .child("kid1")
+                .child("usageStats")
+                .child(DateUtils.dateToString());
+
+        Map<String, Object> allStats = new HashMap<>();
+        for (UsageStats stats : usageStats) {
+            Map<String, Object> appMap = new HashMap<>();
+            appMap.put("timeInForeground", stats.getTotalTimeInForeground());
+            String appName = getAppName(stats.getPackageName());
+            // Можно добавить ещё данные, если нужно
+            FileLogger.log(TAG,"Приложение: " +  appName+
+                     " | Время на переднем плане: " + (stats.getTotalTimeInForeground() / 1000) + " секунд");
+            String safePackageName = stats.getPackageName().replace(".", "_");
+            allStats.put(safePackageName, appMap);
+        }
+
+        ref.setValue(allStats); // Загружаем всю карту за раз
+    }
 
     @Override
     public IBinder onBind(Intent intent) {

@@ -19,33 +19,6 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/Su"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="NEW PAGE" />
-
-        <Button
-            android:id="@+id/viewApps"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/checkVidHintBtn" />
-
-        <Button
-            android:id="@+id/viewUsedApps"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:onClick="prevStep"
-            android:text="@string/goSettingsBtn" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="50dp"
@@ -59,7 +32,7 @@
             android:layout_marginBottom="50dp"
             android:ems="10"
             android:hint="@string/enterCodeHint"
-            android:inputType="number"
+            android:inputType="text"
             android:textSize="20sp" />
 
         <TextView
@@ -239,7 +212,7 @@
             android:id="@+id/Super"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="NEW PAGE" />
+            android:text="СпецВозможности" />
 
         <Button
             android:id="@+id/goHintAcessBtn"
@@ -255,4 +228,62 @@
             android:text="@string/goSettingsBtn" />
 
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/Su"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="NEW PAGE" />
+
+        <Button
+            android:id="@+id/viewApps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/checkVidHintBtn" />
+
+        <Button
+            android:id="@+id/viewUsedApps"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="prevStep"
+            android:text="@string/goSettingsBtn" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/TextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="показать все приложения" />
+
+        <Button
+            android:id="@+id/viewAllAps1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/checkVidHintBtn" />
+
+        <Button
+            android:id="@+id/viewU"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:onClick="prevStep"
+            android:text="@string/goSettingsBtn" />
+
+    </LinearLayout>
+
+
+
+
 </ViewFlipper>
