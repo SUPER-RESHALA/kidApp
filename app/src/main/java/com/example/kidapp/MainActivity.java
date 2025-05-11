@@ -26,6 +26,7 @@ import com.example.kidapp.log.FileLogger;
 import com.example.kidapp.permission.AccessibilityPermissionHandler;
 import com.example.kidapp.permission.UsagePermissionHandler;
 import com.example.kidapp.services.AccessibilityKidService;
+import com.example.kidapp.services.AppInfoKidService;
 import com.example.kidapp.services.UsageKidService;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -53,6 +54,8 @@ public class MainActivity extends AppCompatActivity {
     String childUid;
     SharedPreferences prefs;
     FirebaseManager firebaseManager;
+    public static final String  prefsName="AppPrefs";
+    public static final String pUidName="parent_uid";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +68,8 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-         prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-//         prefs.edit().clear().apply();//ATTENTION
+         prefs = getSharedPreferences(prefsName, Context.MODE_PRIVATE);
+    //     prefs.edit().clear().apply();//ATTENTION
 //        boolean wasPermissionGranted = prefs.getBoolean("accessibility_permission_granted", false);
         firebaseDatabase=FirebaseDatabase.getInstance();
         databaseReference=firebaseDatabase.getReference();
@@ -103,6 +106,9 @@ Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
 //            viewFlipper.showNext();
 //       });
         startSetUpBtn.setOnClickListener(v->{
+            FileLogger.log("AppInfoKidService", "start service");
+            Intent intent= new Intent(this, AppInfoKidService.class);
+            startService(intent);
             viewFlipper.showNext();
         });
         contNameBtn.setOnClickListener(v->{
@@ -146,10 +152,12 @@ if (usagePermissionHandler.isPermissionGranted()){
        List<AppInfo> getInstalledUserApps=  installedAppsHelper.getInstalledUserApps();
         List<AppInfo> getInstalledAppsUsingApplications=  installedAppsHelper.getInstalledAppsUsingApplications();
         List<AppInfo> getInstalledAppsUsingPackages=  installedAppsHelper.getInstalledAppsUsingPackages();
+        List<AppInfo> getInstalledAppsUsingWithFlag=  installedAppsHelper.getInstalledAppsWithFlag();
         viewApps.setOnClickListener(v->{
             int counter=0;
             int counter2=0;
             int counter3=0;
+            int counter4=0;
 //            Intent serviceIntent = new Intent(this, UsageKidService.class);
 //            startService(serviceIntent);
             System.out.println("getInstalledUserApps//////////////////////////////////////////////");
@@ -168,7 +176,11 @@ counter3++;
                 counter++;
                 System.err.println(appInfo.toString());
             }
-            System.err.println("\\n//////////////////////////////////////////////"+ counter+"   "+counter2+ "     "+counter3);
+            System.err.println("\\n//////////////////////////////////////////////"+ counter+"   "+counter2+ "     "+counter3+ "  flag "+counter4);
+            for (AppInfo appInfo:getInstalledAppsUsingWithFlag){
+                counter4++;
+                System.err.println(appInfo.toString());
+            }
         });
 
 Button viewAllApps = findViewById(R.id.viewAllAps1);

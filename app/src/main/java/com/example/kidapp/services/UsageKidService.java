@@ -3,6 +3,7 @@ import android.app.AppOpsManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.nfc.Tag;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -10,11 +11,14 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.util.Log;
 
+import com.example.kidapp.MainActivity;
+import com.example.kidapp.database.FirebaseManager;
 import com.example.kidapp.log.FileLogger;
 import com.example.kidapp.permission.UsagePermissionHandler;
 import com.example.kidapp.utils.DateUtils;
 import com.google.android.gms.common.util.DataUtils;
 import com.google.firebase.Firebase;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -23,18 +27,38 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class UsageKidService extends Service {
 
     private UsageStatsManager usageStatsManager;
     private static final String TAG = "UsageKidService";
+    public static final String nodeName="usageStats";
     FirebaseDatabase db;
+    FirebaseAuth auth;
+    SharedPreferences prefs;
+    ScheduledExecutorService scheduledExecutorService;
+    private int scheduleTimer=2;
+
+    public int getScheduleTimer() {
+        return scheduleTimer;
+    }
+
+    public void setScheduleTimer(int scheduleTimer) {
+        this.scheduleTimer = scheduleTimer;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
         usageStatsManager = (UsageStatsManager) getSystemService(Context.USAGE_STATS_SERVICE);
         db=FirebaseDatabase.getInstance();
+        auth=FirebaseAuth.getInstance();
+        prefs=getSharedPreferences(MainActivity.prefsName,MODE_PRIVATE);
+        scheduledExecutorService= Executors.newSingleThreadScheduledExecutor();
         Log.i(TAG, "ONCREATE CALL");
     }
 
@@ -44,7 +68,7 @@ public class UsageKidService extends Service {
         if (isUsagePermissionGranted()) {
             FileLogger.log(TAG, "Получаем статистику об использовании");
             // Получаем статистику об использовании приложений
-            sendDataToFirebase();
+            sendDataScheduled();
         } else {
             FileLogger.logError(TAG,"Разрешение статистики отсутствует требуется запрос");
             // Запрашиваем разрешение на использование
@@ -122,14 +146,31 @@ public class UsageKidService extends Service {
     }
 
     public void sendDataToFirebase() {
-        Log.i(TAG, "sendDataToFirebase call");
-       // getAppUsageStatsPRINT();
+       FileLogger.log(TAG, "sendDataToFirebase call");
         List<UsageStats> usageStats = getAppsUsageStats();
-        if (usageStats.isEmpty()) {Log.e("sendDataToFireBase", "usageStats isEmpty"); return;}
+        if (usageStats.isEmpty()) {
+            FileLogger.logError(TAG, "usageStats isEmpty");
+            return;
+        }
 
-        DatabaseReference ref = db.getReference("kid")
-                .child("kid1")
-                .child("usageStats")
+        String parentUid = prefs.getString(MainActivity.pUidName, "");
+        if (parentUid.isEmpty()) {
+           FileLogger.logError(TAG, "No parent UID found");
+            return;
+        }
+
+        String childUid = auth.getCurrentUser() != null ? auth.getCurrentUser().getUid() : "";
+        if (childUid.isEmpty()) {
+            FileLogger.logError(TAG, "No child UID (not authenticated)");
+            return;
+        }
+
+        DatabaseReference ref = db.getReference()
+                .child("users")
+                .child(parentUid)
+                .child("children")
+                .child(childUid)
+                .child(nodeName)
                 .child(DateUtils.dateToString());
 
         Map<String, Object> allStats = new HashMap<>();
@@ -137,16 +178,23 @@ public class UsageKidService extends Service {
             Map<String, Object> appMap = new HashMap<>();
             appMap.put("timeInForeground", stats.getTotalTimeInForeground());
             String appName = getAppName(stats.getPackageName());
-            // Можно добавить ещё данные, если нужно
-            FileLogger.log(TAG,"Приложение: " +  appName+
-                     " | Время на переднем плане: " + (stats.getTotalTimeInForeground() / 1000) + " секунд");
+            FileLogger.log(TAG, "Приложение: " + appName +
+                    " | Время на переднем плане: " + (stats.getTotalTimeInForeground() / 1000) + " секунд");
             String safePackageName = stats.getPackageName().replace(".", "_");
             allStats.put(safePackageName, appMap);
         }
 
-        ref.setValue(allStats); // Загружаем всю карту за раз
+        ref.updateChildren(allStats).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                FileLogger.log(TAG, "Usage stats uploaded successfully");
+            } else {
+                FileLogger.logError(TAG, "Failed to upload usage stats: " + task.getException().getMessage());
+            }
+        });
     }
-
+public void sendDataScheduled(){
+        scheduledExecutorService.scheduleWithFixedDelay(this::sendDataToFirebase,0,scheduleTimer, TimeUnit.MINUTES);
+}
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -156,5 +204,8 @@ public class UsageKidService extends Service {
     public void onDestroy() {
         FileLogger.log(TAG, "Вызвался onDestroy");
         super.onDestroy();
+        if (scheduledExecutorService!=null&&!scheduledExecutorService.isShutdown()){
+            scheduledExecutorService.shutdown();
+        }
     }
 }

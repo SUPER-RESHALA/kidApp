@@ -8,8 +8,12 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 
+import com.example.kidapp.log.FileLogger;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class InstalledAppsHelper {
     private Context context;
@@ -90,7 +94,21 @@ public class InstalledAppsHelper {
         return appList;
     }
 
-
+    public Map<String, Object> convertAppsListToMap(List<AppInfo> allApps) {
+        Map<String, Object> allAppsMap = new HashMap<>();
+        for (AppInfo app : allApps) {
+            String packageName = app.getPackageName();
+            String savePackageName= packageName.replace(".","_");
+            Map<String, Object> oneApp = new HashMap<>();
+            oneApp.put("appName", app.getAppName());
+            oneApp.put("packageName", packageName);
+            allAppsMap.put(savePackageName, oneApp);
+        }
+        if (allAppsMap.isEmpty()){
+            FileLogger.logError("convertAppsListToMap", "map is empty");
+        }
+        return allAppsMap;
+    }
 
 
 }

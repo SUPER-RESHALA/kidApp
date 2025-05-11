@@ -68,8 +68,8 @@
             android:name="com.example.kidapp.services.UsageKidService"
             android:exported="false"
             android:permission="android.permission.PACKAGE_USAGE_STATS" />
-
-
+<service android:name=".services.AppInfoKidService"
+    android:exported="false"/>
 
         <activity
             android:name=".MainActivity"

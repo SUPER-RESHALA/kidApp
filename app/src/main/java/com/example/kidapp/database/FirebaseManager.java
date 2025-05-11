@@ -46,6 +46,7 @@ public class FirebaseManager {
         String linkCode = codeField.getText().toString().trim();
         if (linkCode.isEmpty()) {
             Toast.makeText(context, "Enter code", Toast.LENGTH_SHORT).show();
+            FileLogger.logError("linkWithParent", "linkCode is empty");
             return;
         }
 
@@ -64,19 +65,19 @@ public class FirebaseManager {
                         codeField.setEnabled(false);
                         connectBtn.setEnabled(false);
                         listenForRequests(prefs);
-                        Log.i("linkWithParent", "Linked!");
+                        FileLogger.log("linkWithParent", "Linked!");
                         viewFlipper.showNext();
                     } else {
-                        Log.i("linkWithParent", "Invalid code");
+                        FileLogger.log("linkWithParent", "Invalid code");
                     }
                 } else {
-                    Log.e("linkWithParent", "Code not found");
+                    FileLogger.logError("linkWithParent", "Code not found");
                 }
             }
 
             @Override
             public void onCancelled(DatabaseError error) {
-                Log.e("onCanceled", "Error: " + error.getMessage());
+                FileLogger.logError("onCanceled", "Error: " + error.getMessage());
             }
         });
     }
@@ -107,7 +108,7 @@ public class FirebaseManager {
 
             @Override
             public void onCancelled(DatabaseError error) {
-                Log.e("onCanceled", "Error: " + error.getMessage());
+                FileLogger.logError("onCanceled", "Error: " + error.getMessage());
             }
         });
     }
