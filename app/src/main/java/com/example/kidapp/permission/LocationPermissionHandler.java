@@ -75,7 +75,7 @@ public class LocationPermissionHandler implements  PermissionHandler{
         // Заглушка: для обработки результата нужен доступ к onRequestPermissionsResult
         // Обычно этот метод должен вызываться из активности, передавая requestCode, permissions и grantResults
         FileLogger.log("LocationPermissionHandler", "handlePermissionResult called, but implementation requires requestCode, permissions, and grantResults");
-        // Пример использования см. ниже в MainActivity
+
     }
 
     @Override

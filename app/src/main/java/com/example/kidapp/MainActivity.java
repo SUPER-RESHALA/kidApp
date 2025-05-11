@@ -21,6 +21,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.kidapp.apps.AppInfo;
 import com.example.kidapp.apps.InstalledAppsHelper;
+import com.example.kidapp.database.FirebaseManager;
 import com.example.kidapp.log.FileLogger;
 import com.example.kidapp.permission.AccessibilityPermissionHandler;
 import com.example.kidapp.permission.UsagePermissionHandler;
@@ -47,11 +48,11 @@ public class MainActivity extends AppCompatActivity {
     private boolean isFirstLaunch = true;
     private  UsagePermissionHandler usagePermissionHandler;
     private Button goSettingsAcessibilityBtn;
-    FirebaseAuth auth;
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
     String childUid;
     SharedPreferences prefs;
+    FirebaseManager firebaseManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +66,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
          prefs = getSharedPreferences("AppPrefs", Context.MODE_PRIVATE);
-         prefs.edit().clear().apply();//ATTENTION
+//         prefs.edit().clear().apply();//ATTENTION
 //        boolean wasPermissionGranted = prefs.getBoolean("accessibility_permission_granted", false);
         firebaseDatabase=FirebaseDatabase.getInstance();
         databaseReference=firebaseDatabase.getReference();
-        auth=FirebaseAuth.getInstance();
-
         usagePermissionHandler = new UsagePermissionHandler(this);
 FileLogger.init(this);
 Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
@@ -79,7 +78,7 @@ Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
 //        FirebaseDatabase database = FirebaseDatabase.getInstance();
 //        DatabaseReference myRef = database.getReference("message");
 //        myRef.setValue("Hello, People!");
-
+        firebaseManager=FirebaseManager.getInstance();
         viewFlipper= findViewById(R.id.viewFlipper);
         codeField=findViewById(R.id.codeField);
         connectBtn=findViewById(R.id.connectBtn);
@@ -87,14 +86,8 @@ Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
         contNameBtn=findViewById(R.id.contNameBtn);
         ageContBtn=findViewById(R.id.ageContBtn);
         goSettingsUsageBtn=findViewById(R.id.goSetStatBtn);
-
-        // Анонимная аутентификация
-        auth.signInAnonymously().addOnCompleteListener(task -> {
-            if (!task.isSuccessful()) {
-                Toast.makeText(this, "Auth failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-            }
-        });
-        connectBtn.setOnClickListener(v -> linkWithParent());
+        firebaseManager.signIn();
+        connectBtn.setOnClickListener(v -> firebaseManager.linkWithParent(connectBtn,codeField,viewFlipper,this,prefs));
 
         // Проверяем, связан ли ребенок
         String parentUid = prefs.getString("parent_uid", null);
@@ -102,7 +95,8 @@ Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
             codeField.setEnabled(false);
             connectBtn.setEnabled(false);
 //            statusTextView.setText("Linked with parent");
-            listenForRequests();
+            firebaseManager.listenForRequests(prefs);
+            viewFlipper.showNext();
         }
 
 //        connectBtn.setOnClickListener(v->{
@@ -203,93 +197,6 @@ Button viewAllApps = findViewById(R.id.viewAllAps1);
 ////CONFIG FILE SERVISA LYBOGO
     ////CONFIG FILE SERVISA LYBOGO
     //Фоновые процессы
-
-    private void linkWithParent() {
-        String linkCode = codeField.getText().toString().trim();
-        if (linkCode.isEmpty()) {
-            Toast.makeText(this, "Enter code", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String childUid = auth.getCurrentUser().getUid();
-        DatabaseReference codeRef = databaseReference.child("link_codes").child(linkCode);
-
-        codeRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    String parentUid = snapshot.child("parent_uid").getValue(String.class);
-                    if (parentUid != null) {
-                        prefs.edit().putString("parent_uid", parentUid).apply();
-                        codeRef.child("child_uid").setValue(childUid);
-                        codeRef.removeValue();
-                        codeField.setEnabled(false);
-                        connectBtn.setEnabled(false);
-                        listenForRequests();
-                        Log.i("linkWithParent", "Linked!");
-                        viewFlipper.showNext();
-                    } else {
-                        Log.i("linkWithParent", "Invalid code");
-                    }
-                } else {
-                    Log.e("linkWithParent", "Code not found");
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                Log.e("onCanceled", "Error: " + error.getMessage());
-            }
-        });
-    }
-
-    private void listenForRequests() {
-        String parentUid = prefs.getString("parent_uid", "");
-        String childUid = auth.getCurrentUser().getUid();
-
-        DatabaseReference requestsRef = databaseReference
-                .child("users")
-                .child(parentUid)
-                .child("children")
-                .child(childUid)
-                .child("requests");
-
-        requestsRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                for (DataSnapshot requestSnapshot : snapshot.getChildren()) {
-                    String type = requestSnapshot.child("type").getValue(String.class);
-                    String status = requestSnapshot.child("status").getValue(String.class);
-                    if ("take".equals(type) && "pending".equals(status)) {
-                        sendHelloMessage();
-                        requestSnapshot.getRef().child("status").setValue("completed");
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                Log.e("onCanceled", "Error: " + error.getMessage());
-            }
-        });
-    }
-
-    private void sendHelloMessage() {
-        String parentUid = prefs.getString("parent_uid", "");
-        String childUid = auth.getCurrentUser().getUid();
-
-        DatabaseReference messageRef = databaseReference
-                .child("users")
-                .child(parentUid)
-                .child("children")
-                .child(childUid)
-                .child("messages")
-                .push();
-
-        messageRef.child("text").setValue("hello");
-        messageRef.child("timestamp").setValue(ServerValue.TIMESTAMP);
-        Log.i("sendHelloMessage", "send hello");
-    }
 
 
 }
