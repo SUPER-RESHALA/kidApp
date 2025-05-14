@@ -60,7 +60,7 @@ private void sendDataToDb(){
                     .child(childUid)
                     .child(nodeName);
     InstalledAppsHelper installedAppsHelper= new InstalledAppsHelper(getApplicationContext());
-   List<AppInfo> allApps= installedAppsHelper.getInstalledAppsUsingPackages();
+   List<AppInfo> allApps= installedAppsHelper.getInstalledUserApps();
    Map<String, Object> allAppsMap=installedAppsHelper.convertAppsListToMap(allApps);
     db.setValue(allAppsMap);
 }
@@ -75,7 +75,7 @@ private  void sendDataFlow(){
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (scheduledExecutorService!=null&& scheduledExecutorService.isShutdown()){
+        if (scheduledExecutorService!=null&& !scheduledExecutorService.isShutdown()){
             scheduledExecutorService.shutdown();
         }
     }

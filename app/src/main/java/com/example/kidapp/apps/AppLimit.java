@@ -2,17 +2,28 @@ package com.example.kidapp.apps;
 
 import android.content.SharedPreferences;
 
+import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class AppLimit {
+public class AppLimit implements Serializable {
     private String packageName;
     private int limitMinutes;
     public static final String limitPrefix="limit_";
 
     public AppLimit(String packageName, int limitMinutes) {
         this.packageName = packageName;
+        this.limitMinutes = limitMinutes;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
+    public void setLimitMinutes(int limitMinutes) {
         this.limitMinutes = limitMinutes;
     }
 
@@ -40,5 +51,35 @@ public class AppLimit {
              appLimit) {
             saveToPrefs(app,prefs);
         }
+    }
+    public static List<AppLimit> getLimFromPrefs(SharedPreferences prefs) {
+        List<AppLimit> appLimits = new ArrayList<>();
+        Map<String, ?> allPrefs = prefs.getAll();
+
+        allPrefs.keySet().stream()
+                .filter(key -> key.startsWith(limitPrefix))
+                .forEach(key -> {
+                    String packageName = key.substring(limitPrefix.length());
+                    Object value = allPrefs.get(key);
+                    if (value instanceof Integer) {
+                        int limitMinutes = (Integer) value;
+                        if (limitMinutes > 0) {
+                            appLimits.add(new AppLimit(packageName, limitMinutes));
+                        }
+                    }
+                });
+
+        return appLimits;
+    }
+    public long getLimitMilliseconds() {
+        return limitMinutes * 60 * 1000L; // Минуты * секунды * миллисекунды
+    }
+
+    @Override
+    public String toString() {
+        return "AppLimit{" +
+                "packageName='" + packageName + '\'' +
+                ", limitMinutes=" + limitMinutes +
+                '}';
     }
 }

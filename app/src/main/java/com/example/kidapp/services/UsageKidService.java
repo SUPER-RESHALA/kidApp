@@ -183,7 +183,6 @@ public class UsageKidService extends Service {
             String safePackageName = stats.getPackageName().replace(".", "_");
             allStats.put(safePackageName, appMap);
         }
-
         ref.updateChildren(allStats).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 FileLogger.log(TAG, "Usage stats uploaded successfully");
@@ -193,13 +192,16 @@ public class UsageKidService extends Service {
         });
     }
 public void sendDataScheduled(){
+    if (scheduledExecutorService == null || scheduledExecutorService.isShutdown()) {
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    }//QUESTION
         scheduledExecutorService.scheduleWithFixedDelay(this::sendDataToFirebase,0,scheduleTimer, TimeUnit.MINUTES);
 }
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;
     }
-
     @Override
     public void onDestroy() {
         FileLogger.log(TAG, "Вызвался onDestroy");

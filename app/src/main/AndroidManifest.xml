@@ -70,7 +70,10 @@
             android:permission="android.permission.PACKAGE_USAGE_STATS" />
 <service android:name=".services.AppInfoKidService"
     android:exported="false"/>
-
+        <service
+            android:name="com.example.kidapp.services.AppLimitKidService"
+            android:exported="false">
+        </service>
         <activity
             android:name=".MainActivity"
             android:exported="true">

@@ -1,10 +1,14 @@
 package com.example.kidapp;
 
+import android.app.AlertDialog;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -12,9 +16,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
-
+import android.Manifest;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -27,7 +33,9 @@ import com.example.kidapp.permission.AccessibilityPermissionHandler;
 import com.example.kidapp.permission.UsagePermissionHandler;
 import com.example.kidapp.services.AccessibilityKidService;
 import com.example.kidapp.services.AppInfoKidService;
+import com.example.kidapp.services.AppLimitKidService;
 import com.example.kidapp.services.UsageKidService;
+import com.example.kidapp.utils.UsageStatsHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -56,7 +64,15 @@ public class MainActivity extends AppCompatActivity {
     FirebaseManager firebaseManager;
     public static final String  prefsName="AppPrefs";
     public static final String pUidName="parent_uid";
-
+//TODO
+// 1. посылать координаты
+// 2. Допилить ограничение приложений(если нет смены экрана)
+// 3.Сделать оверлей
+// 4.Обязательно защита от удаления(администратор)
+// 5. Запрет в настройки с паролем
+// 6.Защита от аварийного завершения
+// 7.Оптимизация батареи
+// 8. Сделать как сервис чтобы все приложение работало
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -67,9 +83,13 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 100);
+            }
+        }
          prefs = getSharedPreferences(prefsName, Context.MODE_PRIVATE);
-    //     prefs.edit().clear().apply();//ATTENTION
+        // prefs.edit().clear().apply();//ATTENTI
 //        boolean wasPermissionGranted = prefs.getBoolean("accessibility_permission_granted", false);
         firebaseDatabase=FirebaseDatabase.getInstance();
         databaseReference=firebaseDatabase.getReference();
@@ -134,6 +154,8 @@ if (usagePermissionHandler.isPermissionGranted()){
         goSettingsAcessibilityBtn.setOnClickListener(v->{
             if (accessibilityPermissionHandler.isPermissionGranted()){
                 System.out.println("GETTTTTTTTTTTTTTTTTTTTTTTTT"+ accessibilityPermissionHandler.isPermissionGranted());
+                Intent intent= new Intent(this, AppLimitKidService.class);
+                startService(intent);
                 viewFlipper.showNext();
             }else {
 //

@@ -1,5 +1,6 @@
 package com.example.kidapp.utils;
 
+import android.app.usage.UsageEvents;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Context;
@@ -29,4 +30,27 @@ public class UsageStatsHelper {
         }
         return 0;  // Если приложение не использовалось
     }
+    public long getPreciseUsageTime(String packageName) {
+        long usageTime = 0;
+        long startTime = System.currentTimeMillis() - 1000 * 60 * 60 * 24;
+        long endTime = System.currentTimeMillis();
+
+        UsageEvents events = usageStatsManager.queryEvents(startTime, endTime);
+        UsageEvents.Event event = new UsageEvents.Event();
+        long lastForegroundTime = 0;
+
+        while (events.hasNextEvent()) {
+            events.getNextEvent(event);
+            if (event.getPackageName().equals(packageName)) {
+                if (event.getEventType() == UsageEvents.Event.MOVE_TO_FOREGROUND) {
+                    lastForegroundTime = event.getTimeStamp();
+                } else if (event.getEventType() == UsageEvents.Event.MOVE_TO_BACKGROUND && lastForegroundTime > 0) {
+                    usageTime += event.getTimeStamp() - lastForegroundTime;
+                    lastForegroundTime = 0;
+                }
+            }
+        }
+        return usageTime; // уже в миллисекундах
+    }
+
 }

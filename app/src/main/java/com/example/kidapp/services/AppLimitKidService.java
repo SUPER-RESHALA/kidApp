@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.example.kidapp.MainActivity;
 import com.example.kidapp.apps.AppLimit;
@@ -33,6 +32,7 @@ public class AppLimitKidService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        FileLogger.log("AppLimiKidService", "Started onCreate");
         firebaseDatabase=FirebaseDatabase.getInstance();
      auth= FirebaseAuth.getInstance();
      prefs= getSharedPreferences(MainActivity.prefsName,MODE_PRIVATE);
@@ -40,7 +40,7 @@ public class AppLimitKidService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
+            takeLimits();
         return START_STICKY;
     }
     private  void takeLimits(){
@@ -65,7 +65,13 @@ public class AppLimitKidService extends Service {
                     }
                 }
                 AppLimit.removeUselessFromPrefs(apps,prefs);
-AppLimit.saveListToPrefs(apps,prefs);
+                AppLimit.saveListToPrefs(apps,prefs);
+                Intent intent = new Intent("com.yourapp.UPDATE_LIMITS");
+                intent.putExtra("limits", new ArrayList<>(apps));
+                FileLogger.log("AppLimitKidService", "broadcastSend");
+                intent.setPackage(getPackageName());
+                sendBroadcast(intent);
+                FileLogger.log("AppLimitsSize in AppLimiKidService", "size "+ apps.size());
             }
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
