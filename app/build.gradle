@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.example.kidapp"
-        minSdk 24
+        minSdk 26
         targetSdk 34
         versionCode 1
         versionName "1.0"
@@ -41,4 +41,5 @@ dependencies {
     implementation(libs.firebase.auth)
     // https://mvnrepository.com/artifact/com.google.code.gson/gson
     implementation(libs.gson)
+    implementation libs.play.services.location
 }

@@ -74,6 +74,10 @@
             android:name="com.example.kidapp.services.AppLimitKidService"
             android:exported="false">
         </service>
+        <service android:name=".services.LocationKidService"
+            android:exported="false"
+            android:foregroundServiceType="location"
+            android:permission="android.permission.ACCESS_FINE_LOCATION"/>
         <activity
             android:name=".MainActivity"
             android:exported="true">

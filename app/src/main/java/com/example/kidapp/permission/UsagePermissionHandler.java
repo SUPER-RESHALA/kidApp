@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.provider.Settings;
 import android.app.AlertDialog;
 
+import androidx.annotation.NonNull;
+
 public class UsagePermissionHandler implements PermissionHandler {
     private final Activity activity;
 
@@ -40,7 +42,7 @@ public class UsagePermissionHandler implements PermissionHandler {
     }
 
     @Override
-    public void handlePermissionResult() {
+    public void handlePermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (isPermissionGranted()) {
             onPermissionGranted();
         } else {

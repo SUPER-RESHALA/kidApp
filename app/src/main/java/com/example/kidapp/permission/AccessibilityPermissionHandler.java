@@ -7,6 +7,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.accessibility.AccessibilityManager;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import com.example.kidapp.log.FileLogger;
@@ -100,7 +101,7 @@ public class AccessibilityPermissionHandler implements PermissionHandler {
     }
 
     @Override
-    public void handlePermissionResult() {
+    public void handlePermissionResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (isPermissionGranted()) {
             onPermissionGranted();
         } else {

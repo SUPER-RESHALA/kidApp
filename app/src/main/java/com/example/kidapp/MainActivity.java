@@ -18,6 +18,7 @@ import android.widget.Toast;
 import android.widget.ViewFlipper;
 import android.Manifest;
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -30,6 +31,7 @@ import com.example.kidapp.apps.InstalledAppsHelper;
 import com.example.kidapp.database.FirebaseManager;
 import com.example.kidapp.log.FileLogger;
 import com.example.kidapp.permission.AccessibilityPermissionHandler;
+import com.example.kidapp.permission.LocationPermissionHandler;
 import com.example.kidapp.permission.UsagePermissionHandler;
 import com.example.kidapp.services.AccessibilityKidService;
 import com.example.kidapp.services.AppInfoKidService;
@@ -64,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseManager firebaseManager;
     public static final String  prefsName="AppPrefs";
     public static final String pUidName="parent_uid";
+    private LocationPermissionHandler locationPermissionHandler;
 //TODO
 // 1. посылать координаты
 // 2. Допилить ограничение приложений(если нет смены экрана)
@@ -73,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
 // 6.Защита от аварийного завершения
 // 7.Оптимизация батареи
 // 8. Сделать как сервис чтобы все приложение работало
+// 9. Удалять данные об использовании при загрузке на сервер(usage data)
+// 10. ОТДЕЛЬНЫЙкласс для уведов
+// 11. Запускать сервисы можно не только из mainActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -111,7 +117,7 @@ Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
         goSettingsUsageBtn=findViewById(R.id.goSetStatBtn);
         firebaseManager.signIn();
         connectBtn.setOnClickListener(v -> firebaseManager.linkWithParent(connectBtn,codeField,viewFlipper,this,prefs));
-
+locationPermissionHandler=new LocationPermissionHandler(this,this);
         // Проверяем, связан ли ребенок
         String parentUid = prefs.getString("parent_uid", null);
         if (parentUid != null) {
@@ -132,6 +138,7 @@ Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
             viewFlipper.showNext();
         });
         contNameBtn.setOnClickListener(v->{
+            locationPermissionHandler.requestPermission();
             viewFlipper.showNext();
         });
         ageContBtn.setOnClickListener(v->{
@@ -233,4 +240,9 @@ Button viewAllApps = findViewById(R.id.viewAllAps1);
     //Фоновые процессы
 
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        locationPermissionHandler.handlePermissionResult(requestCode, permissions, grantResults);
+    }
 }
