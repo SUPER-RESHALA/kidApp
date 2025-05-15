@@ -78,7 +78,8 @@ public class MainActivity extends AppCompatActivity {
 // 8. Сделать как сервис чтобы все приложение работало
 // 9. Удалять данные об использовании при загрузке на сервер(usage data)
 // 10. ОТДЕЛЬНЫЙкласс для уведов
-// 11. Запускать сервисы можно не только из mainActivity
+// 11. Запускать сервисы можно не только из mainActivit
+// 12. Меньше информации о локации и разные источники wifi моб интернет
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

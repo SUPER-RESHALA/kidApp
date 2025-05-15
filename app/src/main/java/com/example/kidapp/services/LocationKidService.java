@@ -5,10 +5,12 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.location.LocationManager;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
@@ -89,7 +91,10 @@ startSendLoc();
                 .build();
     }
     private void startLocationUpdates() {
-        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
+        FileLogger.log("LocationKidService","StartLocationUpdates");
+        int priority=isGpsEnable()?Priority.PRIORITY_HIGH_ACCURACY:Priority.PRIORITY_BALANCED_POWER_ACCURACY;
+        FileLogger.log("Priority", " IS" +priority);
+        LocationRequest locationRequest = new LocationRequest.Builder(priority, 10000)
                 .setMinUpdateIntervalMillis(5000)
                 .build();
 
@@ -121,14 +126,14 @@ startSendLoc();
                 .child("children")
                 .child(childUid)
                 .child(nodeName);
-        FileLogger.log("LOCATION", location.toString());
+       // FileLogger.log("LOCATION", location.toString());
         if (location!=null){
             ref.updateChildren(getLocationInMap());
         }else {FileLogger.logError("LocationKidService|sendLocationToFb","location is null");}
     }
 protected void startSendLoc(){
         FileLogger.log("LocationKidService","startSendLoc");
-        scheduledExecutorService.scheduleWithFixedDelay(this::sendLocationToFb,1,timerInMin, TimeUnit.MINUTES);
+        scheduledExecutorService.scheduleWithFixedDelay(this::sendLocationToFb,7000,7000, TimeUnit.MILLISECONDS);
 }
     @Override
     public void onDestroy() {
@@ -144,5 +149,10 @@ public Map<String,Object> getLocationInMap(){
         Map<String,Object> map = new HashMap<>();
         map.put(mapName,location);
         return map;
+}
+public boolean isGpsEnable(){
+    LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+    return  locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+            || locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 }
 }
