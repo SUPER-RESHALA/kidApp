@@ -245,7 +245,7 @@
             android:id="@+id/viewApps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/checkVidHintBtn" />
+            android:text="OVERLAY" />
 
         <Button
             android:id="@+id/viewUsedApps"

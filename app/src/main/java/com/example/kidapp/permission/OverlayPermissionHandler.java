@@ -1,37 +1,36 @@
 package com.example.kidapp.permission;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
+import android.util.Log;
 import android.widget.Toast;
 
 public class OverlayPermissionHandler {
-    private final Activity activity;
+    private final Context context;
 
-    public OverlayPermissionHandler(Activity activity) {
-        this.activity = activity;
+    public OverlayPermissionHandler(Context context) {
+        this.context = context;
     }
 
-    // Проверяем, есть ли разрешение на наложение окон
+    // Проверка разрешения
     public boolean isPermissionGranted() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            return Settings.canDrawOverlays(activity);
-        }
-        return true; // На старых версиях Android разрешение не требуется
+        return Settings.canDrawOverlays(context);
     }
 
     // Запрос разрешения у пользователя
     public void requestPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (!Settings.canDrawOverlays(activity)) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                        Uri.parse("package:" + activity.getPackageName()));
-                activity.startActivity(intent);
-               // Toast.makeText(activity, "Разрешите показ поверх других приложений", Toast.LENGTH_LONG).show();
+        if (!isPermissionGranted()) {
+            Log.w("OverlayPermission", "Requesting overlay permission...");
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + context.getPackageName()));
+            if (!(context instanceof Activity)) {
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             }
+            context.startActivity(intent);
         }
     }
-
 }

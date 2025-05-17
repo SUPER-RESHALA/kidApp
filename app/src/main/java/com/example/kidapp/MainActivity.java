@@ -10,6 +10,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,11 +33,13 @@ import com.example.kidapp.database.FirebaseManager;
 import com.example.kidapp.log.FileLogger;
 import com.example.kidapp.permission.AccessibilityPermissionHandler;
 import com.example.kidapp.permission.LocationPermissionHandler;
+import com.example.kidapp.permission.OverlayPermissionHandler;
 import com.example.kidapp.permission.UsagePermissionHandler;
 import com.example.kidapp.services.AccessibilityKidService;
 import com.example.kidapp.services.AppInfoKidService;
 import com.example.kidapp.services.AppLimitKidService;
 import com.example.kidapp.services.UsageKidService;
+import com.example.kidapp.utils.OverlayBlocker;
 import com.example.kidapp.utils.UsageStatsHelper;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -183,34 +186,48 @@ if (usagePermissionHandler.isPermissionGranted()){
         List<AppInfo> getInstalledAppsUsingApplications=  installedAppsHelper.getInstalledAppsUsingApplications();
         List<AppInfo> getInstalledAppsUsingPackages=  installedAppsHelper.getInstalledAppsUsingPackages();
         List<AppInfo> getInstalledAppsUsingWithFlag=  installedAppsHelper.getInstalledAppsWithFlag();
+        OverlayPermissionHandler overlayPermissionHandler= new OverlayPermissionHandler(this);
+        if (overlayPermissionHandler.isPermissionGranted()){
+            Log.e("OVERLAY" , "NOt granted");
+            overlayPermissionHandler.requestPermission();
+        }else {
+            Log.e("OVERLAY HERE SUKI", "TUN TUN TUN TUN SAHUR");
+        }
+        overlayPermissionHandler.requestPermission();
+        Handler handler= new Handler(getMainLooper());
+        Handler handler2= new Handler(getMainLooper());
         viewApps.setOnClickListener(v->{
-            int counter=0;
-            int counter2=0;
-            int counter3=0;
-            int counter4=0;
-//            Intent serviceIntent = new Intent(this, UsageKidService.class);
-//            startService(serviceIntent);
-            System.out.println("getInstalledUserApps//////////////////////////////////////////////");
-            for (AppInfo appInfo:getInstalledUserApps){
-counter3++;
-                System.out.println(appInfo.toString());
-            }
-            System.out.println("getInstalledAppsUsingApplications<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><");
+           handler.postDelayed(()-> OverlayBlocker.showOverlay(this,"TRALARELO TRALALA"),20000);
+            handler2.postDelayed(OverlayBlocker::removeOverlay,30000);
 
-            for (AppInfo appInfo:getInstalledAppsUsingApplications){
-                System.out.println(appInfo.toString());
-                counter2++;
-            }
-            System.out.println("getInstalledAppsUsingPackages  <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><");
-            for (AppInfo appInfo:getInstalledAppsUsingPackages){
-                counter++;
-                System.err.println(appInfo.toString());
-            }
-            System.err.println("\\n//////////////////////////////////////////////"+ counter+"   "+counter2+ "     "+counter3+ "  flag "+counter4);
-            for (AppInfo appInfo:getInstalledAppsUsingWithFlag){
-                counter4++;
-                System.err.println(appInfo.toString());
-            }
+
+//            int counter=0;
+//            int counter2=0;
+//            int counter3=0;
+//            int counter4=0;
+////            Intent serviceIntent = new Intent(this, UsageKidService.class);
+////            startService(serviceIntent);
+//            System.out.println("getInstalledUserApps//////////////////////////////////////////////");
+//            for (AppInfo appInfo:getInstalledUserApps){
+//counter3++;
+//                System.out.println(appInfo.toString());
+//            }
+//            System.out.println("getInstalledAppsUsingApplications<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><");
+//
+//            for (AppInfo appInfo:getInstalledAppsUsingApplications){
+//                System.out.println(appInfo.toString());
+//                counter2++;
+//            }
+//            System.out.println("getInstalledAppsUsingPackages  <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><");
+//            for (AppInfo appInfo:getInstalledAppsUsingPackages){
+//                counter++;
+//                System.err.println(appInfo.toString());
+//            }
+//            System.err.println("\\n//////////////////////////////////////////////"+ counter+"   "+counter2+ "     "+counter3+ "  flag "+counter4);
+//            for (AppInfo appInfo:getInstalledAppsUsingWithFlag){
+//                counter4++;
+//                System.err.println(appInfo.toString());
+//            }
         });
 
 Button viewAllApps = findViewById(R.id.viewAllAps1);
