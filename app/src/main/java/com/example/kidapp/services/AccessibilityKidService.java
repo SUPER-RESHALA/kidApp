@@ -36,6 +36,8 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class AccessibilityKidService extends android.accessibilityservice.AccessibilityService implements OnLimitsUpdatedListener {
 
@@ -43,8 +45,10 @@ public class AccessibilityKidService extends android.accessibilityservice.Access
 private static final String timeOut="Лимит времени истек";
 ScheduledExecutorService scheduledExecutorService;
     private ArrayList<AppLimit> appLimits = new ArrayList<>();
+    String lastApp=" ";
     UsageStatsHelper usageStatsHelper;
-    int timerLimit=5;
+    int timerLimit=1;
+    AtomicLong counter= new AtomicLong(0);
     private static final String dialogMsg="Сегодняшнее время на пользование данным приложением вышло, вы можете воспользоваться им завтра или попросить родителя сменить лимит";
     private static final List<String> blockedApps = Arrays.asList(
             "com.instagram.android",  // Пример: Instagram
@@ -55,8 +59,15 @@ ScheduledExecutorService scheduledExecutorService;
 //private void startCheckLimits(){
 //    scheduledExecutorService.scheduleWithFixedDelay()
 //}
-private void scheduleChecking(){
-    scheduledExecutorService.scheduleWithFixedDelay(this::checkApps,1,timerLimit, TimeUnit.MINUTES);
+private void scheduleChecking(String packageName){
+    scheduledExecutorService.scheduleWithFixedDelay(()->checkApps(packageName),1,timerLimit, TimeUnit.MINUTES);
+}
+private void stopScheduleClearCounter(){
+if(scheduledExecutorService!=null&&!scheduledExecutorService.isShutdown()){
+    scheduledExecutorService.shutdown();//MAYBE shutdownNOW check
+}
+scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+counter.set(0);
 }
     private OnLimitsUpdatedListener limitsUpdatedListener;
 
@@ -72,23 +83,41 @@ private void blockApp(){
         FileLogger.log("blockApp", "called");
     performGlobalAction(GLOBAL_ACTION_HOME);
 }
-private void checkApps(){
-        if (appLimits.isEmpty()){return;}
+    private long getUseTimeWithCounter(String packageName){
+        if (usageStatsHelper==null){
+            FileLogger.logError("getUseTimeWithCounter", "usageStatsHelperIsNull");
+            return 0;}
+if (counter.get()==0){ FileLogger.logError("getUseTimeWithCounter", "counter 0");  return 0;}
+return counter.get()*60*1000+usageStatsHelper.getPreciseUsageTime(packageName);
+    }
+private void checkApps(String packageName){
+    FileLogger.log("checkApp", "call");
+    if (appLimits.isEmpty()){ FileLogger.log("EMPTY", "EMPTY APPLIMITS");}
+    if (appLimits.isEmpty()|| !hasPackage(packageName)){ FileLogger.log("checkApp", "return");  return; }
+    if (usageStatsHelper == null) return;
     Iterator<AppLimit> iterator= appLimits.iterator();
-        while (iterator.hasNext()){
-            AppLimit app =iterator.next();
-            String packageName=app.getPackageName();
-          if( usageStatsHelper.getUsageTime(packageName)>=app.getLimitMilliseconds()){
-              showNotification(packageName);
-                blockApp();
-          }
-        }
+    while (iterator.hasNext()){
+        AppLimit app =iterator.next();
+        String pName=app.getPackageName();
+        if (!Objects.equals(pName, packageName)){continue;}
+        FileLogger.log("CheckAPPS NEW ",
+                "usageStatsHelper.getPreciseUsageTime(packageName) " +  usageStatsHelper.getPreciseUsageTime(packageName)
+                        +"      "+"app.getLimitMilliseconds() "+app.getLimitMilliseconds()+ "    "+ app.getLimitMinutes()
+                        + "pName "+pName+"    "+ "packageName "+ packageName+ "TO STRING "+  app.toString());
+        if(getUseTimeWithCounter(packageName)>=app.getLimitMilliseconds()){
+            FileLogger.log("COUNTER","TIME: "+ getUseTimeWithCounter(packageName)+"    COUNT "+ counter.get());
+            showNotification(packageName);
+            blockApp();
+            break;
+        }}
+    counter.incrementAndGet();
 }
-    private void checkApp(String packageName){
+    private boolean checkApp(String packageName){
+        boolean success=false;
         FileLogger.log("checkApp", "call");
         if (appLimits.isEmpty()){ FileLogger.log("EMPTY", "EMPTY APPLIMITS");}
-        if (appLimits.isEmpty()|| !hasPackage(packageName)){ FileLogger.log("checkApp", "return");  return; }
-        if (usageStatsHelper == null) return;
+        if (appLimits.isEmpty()|| !hasPackage(packageName)){ FileLogger.log("checkApp", "return");  return false; }
+        if (usageStatsHelper == null) return false;
         Iterator<AppLimit> iterator= appLimits.iterator();
         while (iterator.hasNext()){
             AppLimit app =iterator.next();
@@ -101,9 +130,11 @@ private void checkApps(){
             if( usageStatsHelper.getPreciseUsageTime(packageName)>=app.getLimitMilliseconds()){
                 showNotification(packageName);
                 blockApp();
+                success=true;
                 break;
             }
         }
+        return success;
     }
 
 private void showNotification(String packageName){
@@ -131,7 +162,15 @@ private void showNotification(String packageName){
     public void onAccessibilityEvent(AccessibilityEvent event) {
         if (event.getEventType() == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
             String packageName = event.getPackageName() != null ? event.getPackageName().toString() : "";
-            checkApp(packageName);
+            boolean success=checkApp(packageName);
+            if (!packageName.equals(lastApp)){
+                FileLogger.log(" if (!packageName.equals(lastApp)){", " if (!packageName.equals(lastApp)){");
+                stopScheduleClearCounter();
+                lastApp=packageName;
+            }
+           if (!success) {
+               scheduleChecking(packageName);}
+
 //           String packageName = event.getPackageName() != null ? event.getPackageName().toString() : "";
 //
 //            // Проверка, заблокировано ли приложение
