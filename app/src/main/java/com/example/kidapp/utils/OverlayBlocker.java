@@ -6,9 +6,12 @@ import android.graphics.PixelFormat;
 import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class OverlayBlocker {
@@ -31,24 +34,33 @@ public class OverlayBlocker {
         textView.setTextSize(22);
         textView.setBackgroundColor(Color.parseColor("#AA000000")); // полупрозрачный чёрный
         textView.setTextColor(Color.WHITE);
-        textView.setGravity(Gravity.CENTER);
-        textView.setPadding(40, 40, 40, 40);
-
+        Button blockButton = new Button(context);
+        blockButton.setText("Ok");
+        blockButton.setBackgroundColor(Color.RED);
+        blockButton.setTextColor(Color.WHITE);
+        blockButton.setOnClickListener(v -> {
+            removeOverlay();
+        });
+        LinearLayout layout = new LinearLayout(context);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setGravity(Gravity.CENTER);
+        layout.setBackgroundColor(Color.parseColor("#888888"));
+        int padding = (int) TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP, 16, context.getResources().getDisplayMetrics());
+        layout.setPadding(padding, padding, padding, padding);
+        layout.addView(textView);
+        layout.addView(blockButton);
+        overlayView = layout;
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.MATCH_PARENT,
                 WindowManager.LayoutParams.MATCH_PARENT,
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.O ?
-                        WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY :
-                        WindowManager.LayoutParams.TYPE_PHONE,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
                 WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE |
-                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN |
-                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                        WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL |
+                        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN,
                 PixelFormat.TRANSLUCENT
         );
-
         params.gravity = Gravity.CENTER;
-
-        overlayView = textView;
         windowManager.addView(overlayView, params);
     }
 

@@ -25,6 +25,7 @@ import com.example.kidapp.MainActivity;
 import com.example.kidapp.R;
 import com.example.kidapp.apps.AppLimit;
 import com.example.kidapp.log.FileLogger;
+import com.example.kidapp.utils.OverlayBlocker;
 import com.example.kidapp.utils.UsageStatsHelper;
 
 import java.io.File;
@@ -81,6 +82,7 @@ private List<AppLimit> getLimits(){
 }
 private void blockApp(){
         FileLogger.log("blockApp", "called");
+    OverlayBlocker.showOverlay(this,"ВРЕМЯ ВЫШЛО");
     performGlobalAction(GLOBAL_ACTION_HOME);
 }
     private long getUseTimeWithCounter(String packageName){
