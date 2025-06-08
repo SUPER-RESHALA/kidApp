@@ -1,8 +1,10 @@
 package com.example.kidapp;
 
 import android.app.AlertDialog;
+import android.app.admin.DevicePolicyManager;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,6 +31,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.example.kidapp.apps.AppInfo;
 import com.example.kidapp.apps.InstalledAppsHelper;
+import com.example.kidapp.core.DeviceAdminReceiverImpl;
 import com.example.kidapp.database.FirebaseManager;
 import com.example.kidapp.log.FileLogger;
 import com.example.kidapp.permission.AccessibilityPermissionHandler;
@@ -106,11 +109,6 @@ public class MainActivity extends AppCompatActivity {
         usagePermissionHandler = new UsagePermissionHandler(this);
 FileLogger.init(this);
 Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
-
-// Write a message to the database
-//        FirebaseDatabase database = FirebaseDatabase.getInstance();
-//        DatabaseReference myRef = database.getReference("message");
-//        myRef.setValue("Hello, People!");
         firebaseManager=FirebaseManager.getInstance();
         viewFlipper= findViewById(R.id.viewFlipper);
         codeField=findViewById(R.id.codeField);
@@ -121,20 +119,15 @@ Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
         goSettingsUsageBtn=findViewById(R.id.goSetStatBtn);
         firebaseManager.signIn();
         connectBtn.setOnClickListener(v -> firebaseManager.linkWithParent(connectBtn,codeField,viewFlipper,this,prefs));
-locationPermissionHandler=new LocationPermissionHandler(this,this);
+        locationPermissionHandler=new LocationPermissionHandler(this,this);
         // Проверяем, связан ли ребенок
         String parentUid = prefs.getString("parent_uid", null);
         if (parentUid != null) {
             codeField.setEnabled(false);
             connectBtn.setEnabled(false);
-//            statusTextView.setText("Linked with parent");
             firebaseManager.listenForRequests(prefs);
             viewFlipper.showNext();
         }
-
-//        connectBtn.setOnClickListener(v->{
-//            viewFlipper.showNext();
-//       });
         startSetUpBtn.setOnClickListener(v->{
             FileLogger.log("AppInfoKidService", "start service");
             Intent intent= new Intent(this, AppInfoKidService.class);
@@ -169,71 +162,33 @@ if (usagePermissionHandler.isPermissionGranted()){
                 startService(intent);
                 viewFlipper.showNext();
             }else {
-//
 //                Intent serviceIntent = new Intent(this, AccessibilityKidService.class);
 //                startService(serviceIntent);
-
-                System.out.println("SUCKKKKKING&*&*&&*&**&&*&*&*&*&*&*"+ accessibilityPermissionHandler.isPermissionGranted());
+                System.out.println("&*&*&&*&**&&*&*&*&*&*&*"+ accessibilityPermissionHandler.isPermissionGranted());
             }
          accessibilityPermissionHandler.requestPermission();
         });
-
-
-
-        Button viewApps= findViewById(R.id.viewApps);
-        InstalledAppsHelper installedAppsHelper= new InstalledAppsHelper(this);
-       List<AppInfo> getInstalledUserApps=  installedAppsHelper.getInstalledUserApps();
-        List<AppInfo> getInstalledAppsUsingApplications=  installedAppsHelper.getInstalledAppsUsingApplications();
-        List<AppInfo> getInstalledAppsUsingPackages=  installedAppsHelper.getInstalledAppsUsingPackages();
-        List<AppInfo> getInstalledAppsUsingWithFlag=  installedAppsHelper.getInstalledAppsWithFlag();
+        Button viewUsedApps= findViewById(R.id.viewUsedApps);
         OverlayPermissionHandler overlayPermissionHandler= new OverlayPermissionHandler(this);
-        if (overlayPermissionHandler.isPermissionGranted()){
-            Log.e("OVERLAY" , "NOt granted");
-            overlayPermissionHandler.requestPermission();
-        }else {
-            Log.e("OVERLAY HERE SUKI", "TUN TUN TUN TUN SAHUR");
-        }
-        overlayPermissionHandler.requestPermission();
-        Handler handler= new Handler(getMainLooper());
-        Handler handler2= new Handler(getMainLooper());
-        viewApps.setOnClickListener(v->{
-           handler.postDelayed(()-> OverlayBlocker.showOverlay(this,"TRALARELO TRALALA"),20000);
-            handler2.postDelayed(OverlayBlocker::removeOverlay,30000);
-
-
-//            int counter=0;
-//            int counter2=0;
-//            int counter3=0;
-//            int counter4=0;
-////            Intent serviceIntent = new Intent(this, UsageKidService.class);
-////            startService(serviceIntent);
-//            System.out.println("getInstalledUserApps//////////////////////////////////////////////");
-//            for (AppInfo appInfo:getInstalledUserApps){
-//counter3++;
-//                System.out.println(appInfo.toString());
-//            }
-//            System.out.println("getInstalledAppsUsingApplications<><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><");
-//
-//            for (AppInfo appInfo:getInstalledAppsUsingApplications){
-//                System.out.println(appInfo.toString());
-//                counter2++;
-//            }
-//            System.out.println("getInstalledAppsUsingPackages  <><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><><");
-//            for (AppInfo appInfo:getInstalledAppsUsingPackages){
-//                counter++;
-//                System.err.println(appInfo.toString());
-//            }
-//            System.err.println("\\n//////////////////////////////////////////////"+ counter+"   "+counter2+ "     "+counter3+ "  flag "+counter4);
-//            for (AppInfo appInfo:getInstalledAppsUsingWithFlag){
-//                counter4++;
-//                System.err.println(appInfo.toString());
-//            }
+        viewUsedApps.setOnClickListener(l->{
+            if (!overlayPermissionHandler.isPermissionGranted()){
+                Log.e("OVERLAY" , "NOt granted");
+                overlayPermissionHandler.requestPermission();
+            }else {
+                Log.e("OVERLAY HERE ", "TUN TUN TUN TUN SAHUR");
+                viewFlipper.showNext();
+            }
         });
-
+        ComponentName deviceAdminSample = new ComponentName(this, DeviceAdminReceiverImpl.class);
+        DevicePolicyManager mDPM = (DevicePolicyManager) getSystemService(Context.DEVICE_POLICY_SERVICE);
 Button viewAllApps = findViewById(R.id.viewAllAps1);
         viewAllApps.setOnClickListener(v->{
-
-        });
+if (mDPM.isAdminActive(deviceAdminSample)){
+    Toast.makeText(getApplicationContext(),"Настройка завершена приложение закрывается",Toast.LENGTH_LONG).show();
+    this.finish();
+}else {
+    enableDeviceAdmin();
+}});
 
 
 
@@ -257,7 +212,13 @@ Button viewAllApps = findViewById(R.id.viewAllAps1);
     ////CONFIG FILE SERVISA LYBOGO
     //Фоновые процессы
 
-
+    private void enableDeviceAdmin() {
+        ComponentName deviceAdminSample = new ComponentName(this, DeviceAdminReceiverImpl.class);
+        Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN);
+        intent.putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, deviceAdminSample);
+        intent.putExtra(DevicePolicyManager.EXTRA_ADD_EXPLANATION, "Provide these permissions to manage the application");
+        startActivityForResult(intent, DeviceAdminReceiverImpl.BIND_DEVICE_ADMIN_CODE);
+    }
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);

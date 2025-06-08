@@ -82,6 +82,39 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/kidAge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="50dp"
+            android:gravity="center"
+            android:text="@string/kidAge"
+            android:textSize="28sp" />
+
+        <EditText
+            android:id="@+id/editTextNumber"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:hint="@string/ageInputHint"
+            android:inputType="number"
+            android:visibility="invisible" />
+
+        <Button
+            android:id="@+id/ageContBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="prevStep"
+            android:text="@string/continueBtn" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <TextView
             android:id="@+id/kidName"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -97,18 +130,21 @@
             android:ems="10"
             android:hint="@string/kidNameInputHint"
             android:inputType="text"
-            android:text="@string/kidNameInputHint" />
+            android:text="@string/kidNameInputHint"
+            android:visibility="invisible" />
 
         <TextView
             android:id="@+id/selectAvaText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/selectAva" />
+            android:text="@string/selectAva"
+            android:visibility="invisible" />
 
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="invisible"
             tools:srcCompat="@tools:sample/avatars" />
 
         <Button
@@ -116,39 +152,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="prevStep"
-            android:text="@string/continueBtn" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical">
-
-        <TextView
-            android:id="@+id/kidAge"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="50dp"
-            android:gravity="center"
-            android:text="@string/kidAge"
-            android:textSize="28sp" />
-
-        <EditText
-            android:id="@+id/editTextNumber"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:ems="10"
-            android:hint="@string/ageInputHint"
-            android:inputType="number" />
-
-        <Button
-            android:id="@+id/ageContBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="prevStep"
-            android:text="@string/continueBtn" />
+            android:text="@string/requestGeo" />
 
     </LinearLayout>
 
@@ -192,7 +196,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:onClick="prevStep"
-            android:text="@string/checkVidHintBtn" />
+            android:text="@string/checkVidHintBtn"
+            android:visibility="invisible" />
 
         <Button
             android:id="@+id/goSetStatBtn"
@@ -212,13 +217,14 @@
             android:id="@+id/Super"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="СпецВозможности" />
+            android:text="@string/accssebilityText" />
 
         <Button
             android:id="@+id/goHintAcessBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/checkVidHintBtn" />
+            android:text="@string/checkVidHintBtn"
+            android:visibility="invisible" />
 
         <Button
             android:id="@+id/enableAccessibilityBtn"
@@ -239,13 +245,14 @@
             android:id="@+id/Su"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="NEW PAGE" />
+            android:text="@string/overlayRequest" />
 
         <Button
             android:id="@+id/viewApps"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="OVERLAY" />
+            android:text="OVERLAY"
+            android:visibility="invisible" />
 
         <Button
             android:id="@+id/viewUsedApps"
@@ -266,24 +273,23 @@
             android:id="@+id/TextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="показать все приложения" />
+            android:text="@string/adminText" />
 
         <Button
             android:id="@+id/viewAllAps1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/checkVidHintBtn" />
+            android:text="@string/goSettingsBtn" />
 
         <Button
             android:id="@+id/viewU"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:onClick="prevStep"
-            android:text="@string/goSettingsBtn" />
+            android:text="@string/goSettingsBtn"
+            android:visibility="invisible" />
 
     </LinearLayout>
-
-
 
 
 </ViewFlipper>

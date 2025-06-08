@@ -5,14 +5,14 @@
     <string name="enterCode2">Чтобы связать телефон ребенка с телефоном родителя</string>
     <string name="connectBtn">Подключить</string>
     <string name="letSetUp">Давайте настроим телефон ребёнка</string>
-    <string name="startSetUpBtn">Начать настройку</string>
-    <string name="kidAge">Сколько лет ребенку?</string>
+    <string name="startSetUpBtn">Начать настройку и запустить сервис по отправке информации о приложениях</string>
+    <string name="kidAge">Спасибо, что выбрали наше приложение</string>
     <string name="continueBtn">Продолжить</string>
-    <string name="kidName">Давайте напишем имя ребенка</string>
-    <string name="selectAva">Выберите аватар ребенка</string>
+    <string name="kidName">Давайте включим доступ к геолокации</string>
+    <string name="selectAva">Спасибо, что выбрали наше приложение</string>
     <string name="enableStatText">Включите доступ к статистике</string>
     <string name="statText">Чтобы знать сколько времени ребёнок проводит в телефоне</string>
-    <string name="statHintText1">1.  Нажмите \"Перейти к активации\"</string>
+    <string name="statHintText1">1.  Нажмите \"Перейти в настройки\"</string>
     <string name="statHintText2">2. Выберите наше приложение</string>
     <string name="statHint3">3. Включите доступ к истории использования</string>
     <string name="checkVidHintBtn">Посмотреть видеоподсказку</string>
@@ -20,4 +20,10 @@
     <string name="kidNameInputHint">Введите имя ребёнка здесь</string>
     <string name="ageInputHint">Введите возраст здесь</string>
     <string name="accessibility_service_description">Включите этот сервис специальных возможестей чтобы мы могли: 1. Блокировать нежелательные приложения.  2. Отслеживать сколько времени проводит ебенок в приложении</string>
+    <string name="sample_device_admin">Заголовок для администратора</string>
+    <string name="sample_device_admin_description">Приложению нужно иметь права администратора для защиты от удаления</string>
+    <string name="requestGeo">Предоставить доступ к геолокации</string>
+    <string name="accssebilityText">Предоставьте доступ к специальным возможностям</string>
+    <string name="overlayRequest">Разрешите доступ показа поверх других приложений</string>
+    <string name="adminText">Включите защиту от удаления в настройках(приложение администратор)</string>
 </resources>
