@@ -1,5 +1,8 @@
 package com.example.kidapp.services;
 import android.app.AppOpsManager;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -11,7 +14,10 @@ import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
+
 import com.example.kidapp.MainActivity;
+import com.example.kidapp.R;
 import com.example.kidapp.database.FirebaseManager;
 import com.example.kidapp.log.FileLogger;
 import com.example.kidapp.permission.UsagePermissionHandler;
@@ -68,6 +74,7 @@ public class UsageKidService extends Service {
         if (isUsagePermissionGranted()) {
             FileLogger.log(TAG, "Получаем статистику об использовании");
             // Получаем статистику об использовании приложений
+            startForeground(7,createNotification());
             sendDataScheduled();
         } else {
             FileLogger.logError(TAG,"Разрешение статистики отсутствует требуется запрос");
@@ -197,7 +204,16 @@ public void sendDataScheduled(){
     }//QUESTION
         scheduledExecutorService.scheduleWithFixedDelay(this::sendDataToFirebase,0,scheduleTimer, TimeUnit.MINUTES);
 }
+    private Notification createNotification() {
+        NotificationChannel channel = new NotificationChannel("Usage statsService", "Usage statsService", NotificationManager.IMPORTANCE_LOW);
+        NotificationManager manager = getSystemService(NotificationManager.class);
+        if (manager != null) manager.createNotificationChannel(channel);
 
+        return new NotificationCompat.Builder(this, "Usage statsService")
+                .setContentTitle("Usage statsService работает")
+                .setSmallIcon(R.drawable.ic_launcher_foreground)
+                .build();
+    }
     @Override
     public IBinder onBind(Intent intent) {
         return null;

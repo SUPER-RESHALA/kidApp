@@ -172,7 +172,6 @@ private void showNotification(String packageName){
             }
            if (!success) {
                scheduleChecking(packageName);}
-
 //           String packageName = event.getPackageName() != null ? event.getPackageName().toString() : "";
 //
 //            // Проверка, заблокировано ли приложение

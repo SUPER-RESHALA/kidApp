@@ -129,10 +129,12 @@ Log.w("GGGGGGGGGGGGG",FileLogger.getLogFilePath());
             viewFlipper.showNext();
         }
         startSetUpBtn.setOnClickListener(v->{
-            FileLogger.log("AppInfoKidService", "start service");
-            Intent intent= new Intent(this, AppInfoKidService.class);
-            startService(intent);
-            viewFlipper.showNext();
+                FileLogger.log("AppInfoKidService", "start service");
+                Intent intent= new Intent(this, AppInfoKidService.class);
+                //startService(intent);
+                startForegroundService(intent);
+                viewFlipper.showNext();
+
         });
         contNameBtn.setOnClickListener(v->{
             locationPermissionHandler.requestPermission();
@@ -146,7 +148,6 @@ goSettingsUsageBtn.setOnClickListener(v->{
 if (usagePermissionHandler.isPermissionGranted()){
     Intent intent= new Intent(this, UsageKidService.class);
     startService(intent);
-
     viewFlipper.showNext();
 }else {
     usagePermissionHandler.requestPermission();
@@ -159,7 +160,7 @@ if (usagePermissionHandler.isPermissionGranted()){
             if (accessibilityPermissionHandler.isPermissionGranted()){
                 System.out.println("GETTTTTTTTTTTTTTTTTTTTTTTTT"+ accessibilityPermissionHandler.isPermissionGranted());
                 Intent intent= new Intent(this, AppLimitKidService.class);
-                startService(intent);
+               startForegroundService(intent);
                 viewFlipper.showNext();
             }else {
 //                Intent serviceIntent = new Intent(this, AccessibilityKidService.class);
