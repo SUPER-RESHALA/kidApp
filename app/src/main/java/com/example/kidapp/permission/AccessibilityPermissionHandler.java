@@ -83,7 +83,7 @@ public class AccessibilityPermissionHandler implements PermissionHandler {
     private void showPermissionDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Необходим доступ к специальным возможностям");
-        builder.setMessage("Для работы приложения необходимо разрешение на специальные возможности. Включите его в настройках.");
+        builder.setMessage("Для работы приложения необходимо включить специальные возможности. Включите их в настройках.");
         builder.setPositiveButton("Перейти в настройки", (dialog, which) -> openAccessibilitySettings());
         builder.setNegativeButton("Отмена", (dialog, which) -> onPermissionDenied());
         builder.setCancelable(false);

@@ -20,7 +20,7 @@
     <string name="kidNameInputHint">Введите имя ребёнка здесь</string>
     <string name="ageInputHint">Введите возраст здесь</string>
     <string name="accessibility_service_description">Включите этот сервис специальных возможестей чтобы мы могли: 1. Блокировать нежелательные приложения.  2. Отслеживать сколько времени проводит ебенок в приложении</string>
-    <string name="sample_device_admin">Заголовок для администратора</string>
+    <string name="sample_device_admin">Включите защиту от удаления</string>
     <string name="sample_device_admin_description">Приложению нужно иметь права администратора для защиты от удаления</string>
     <string name="requestGeo">Предоставить доступ к геолокации</string>
     <string name="accssebilityText">Предоставьте доступ к специальным возможностям</string>
